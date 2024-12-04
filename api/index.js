@@ -5,6 +5,7 @@ import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
 import postRoutes from './routes/post.route.js';
 import commentRoutes from './routes/comment.route.js';
+import contactMessageRoutes from './routes/contactMessage.route.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -23,12 +24,13 @@ mongoose
 const __dirname = path.resolve();
 
 const app = express();
+app.use(express.static('public'));
 
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
   origin: '*', // Allow all origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific methods
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'], // Allow specific methods
   allowedHeaders: ['Content-Type'], // Allow certain headers
 };
 
@@ -42,12 +44,13 @@ app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/post', postRoutes);
 app.use("/api/comment", commentRoutes);
+app.use("/api/contact", contactMessageRoutes);
 
-app.use(express.static(path.join(__dirname, '/client/dist')));
+// app.use(express.static(path.join(__dirname, '/client/dist')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+// });
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });

@@ -1,22 +1,29 @@
 import Post from '../models/post.model.js';
 import { errorHandler } from '../utils/error.js';
 
-export const create = async (req, res) => {
-  // if (!req.user.isAdmin) {
-  //   return next(errorHandler(403, 'You are not allowed to create a post'));
-  // }
+export const create = async (req, res,next) => {
+  const fileUrl = "http://localhost:8080";  
   if (!req.body.title || !req.body.content) {
     return next(errorHandler(400, 'Please provide all required fields'));
   }
-  const slug = req.body.title
+  const fileUrlWithPath = req.file 
+    ? `${fileUrl}/images/${req.file.filename}`  
+    : 'https://www.hostinger.com/tutorials/wp-content/uploads/sites/2/2021/09/how-to-write-a-blog-post.png';
+
+  let slug = req.body.title
     .split(' ')
     .join('-')
     .toLowerCase()
     .replace(/[^a-zA-Z0-9-]/g, '');
+
+  // Append current timestamp to the slug
+  slug = `${slug}-${Date.now()}`;
+  
+
   const newPost = new Post({
     ...req.body,
-    slug
-    
+    slug,
+    image: fileUrlWithPath,
   });
   try {
     const savedPost = await newPost.save();
@@ -47,7 +54,7 @@ export const getPostsByUserEmail = async (req, res, next) => {
 };
 
 export const getposts = async (req, res, next) => {
-  console.log(req.query.userEmail);
+  // console.log(req.query.userEmail);
   
   try {
     const startIndex = parseInt(req.query.startIndex) || 0;
@@ -106,6 +113,13 @@ export const deletepost = async (req, res, next) => {
 }
 
 export const updatepost = async (req, res, next) => {
+  console.log(req.body);
+  console.log(req?.file?.filename);
+  const fileUrl = "http://localhost:8080"; 
+  let fileUrlWithPath = '';  
+  if(req.file){
+     fileUrlWithPath = `${fileUrl}/images/${req.file.filename}`  
+  }
   if (req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to update this post'));
   }
@@ -117,7 +131,7 @@ export const updatepost = async (req, res, next) => {
           title: req.body.title,
           content: req.body.content,
           category: req.body.category,
-          image: req.body.image,
+          image: fileUrlWithPath ? fileUrlWithPath : req.body.image,
         },
       },
       { new: true }

@@ -10,8 +10,8 @@ const postSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      unique: true,
     },
+    
     image: {
       type: String,
       default:
@@ -33,6 +33,7 @@ const postSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      trim: true,
     },
   },
   { timestamps: true }

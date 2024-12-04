@@ -8,6 +8,11 @@ export const test = (req, res) => {
 
 
 export const updateUser = async (req, res, next) => {
+  const fileUrl = "http://localhost:8080"; 
+  let fileUrlWithPath = '';  
+  if(req.file){
+     fileUrlWithPath = `${fileUrl}/images/${req.file.filename}`  
+  }
   if (req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to update this user'));
   }
@@ -42,7 +47,7 @@ export const updateUser = async (req, res, next) => {
         $set: {
           username: req.body.username,
           email: req.body.email,
-          profilePicture: req.body.profilePicture,
+          profilePicture: fileUrlWithPath ? fileUrlWithPath : req.body.profilePicture,
           password: req.body.password,
         },
       },

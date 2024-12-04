@@ -3,8 +3,17 @@ import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 
+
+
+
 export const signup = async (req, res, next) => {
-    const { username, email, password } = req.body;
+  const { username, email, password } = req.body;
+  const fileUrl = "http://localhost:8080";  
+  const fileUrlWithPath = req.file 
+    ? `${fileUrl}/images/${req.file.filename}`  
+    : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+
+  // console.log('Profile image URL:', fileUrlWithPath);
 
   if (
     !username ||
@@ -12,9 +21,9 @@ export const signup = async (req, res, next) => {
     !password ||
     username === '' ||
     email === '' ||
-    password === '')
-    {
-    next(errorHandler(400, 'All fields are required'));
+    password === ''
+  ) {
+    return next(errorHandler(400, 'All fields are required'));
   }
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
@@ -23,15 +32,18 @@ export const signup = async (req, res, next) => {
     username,
     email,
     password: hashedPassword,
+    profilePicture: fileUrlWithPath,  // Use the file URL or default image
   });
-  
+
   try {
-      await newUser.save();
-      res.json('Signup successful');
-    } catch (error) {
-        next(error);
-    }
+    await newUser.save();
+    res.json('Signup successful');
+  } catch (error) {
+    next(error);
+  }
 };
+
+
 
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
